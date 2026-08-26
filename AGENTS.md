@@ -13,8 +13,8 @@ Keep it current. An out-of-date description here misleads every future conversat
 
 This is a collaborative MCQ test-bank quiz app for teachers. Sprint 1 is in progress:
 Phase 1 (D1 user store) and Phase 2 (auth and user CRUD API routes) are deployed.
-Phase 3 (registration, login, and MCQ stub UI) is next. The technical PRD in
-`ai-workspace/sprint-1-user-authentication_PRD.md` is the source of truth.
+Phase 3 (registration, login, MCQ stub UI) and Phase 4 (automated verification, 90 tests) are
+deployed. The technical PRD in `ai-workspace/sprint-1-user-authentication_PRD.md` is the source of truth.
 
 ## Stack
 
