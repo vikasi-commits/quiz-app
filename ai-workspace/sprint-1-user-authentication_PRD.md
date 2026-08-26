@@ -362,6 +362,8 @@ Use shadcn/ui components (`button`, `card`, `field`, `input`, `label`) and theme
 
 **Deployed:** 2026-08-26 — infrastructure only; API routes and UI are Phase 2/3.
 
+**Production URL:** https://quiz-app.vikas-i.workers.dev
+
 ---
 
 ### Phase 2: API Routes - PLANNED
@@ -607,7 +609,7 @@ Use this section to verify what shipped in the Phase 1 deploy. **No user-facing 
 
 ### Remote database migration
 
-Production D1 must have the schema applied before auth APIs work (Phase 2):
+Production D1 schema applied on 2026-08-26 via:
 
 ```bash
 npx wrangler d1 migrations apply quiz-app-db --remote
