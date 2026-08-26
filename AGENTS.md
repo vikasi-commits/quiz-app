@@ -11,9 +11,10 @@ the problem, the primary user, and the current state. Two or three sentences.
 Keep it current. An out-of-date description here misleads every future conversation.
 -->
 
-This is an unmodified AISprints starter. No application features have been built yet.
-The technical PRD in `ai-workspace/` is the source of truth for what is being built and
-for the current phase of work.
+This is a collaborative MCQ test-bank quiz app for teachers. Sprint 1 is in progress:
+Phase 1 (D1 user store) and Phase 2 (auth and user CRUD API routes) are deployed.
+Phase 3 (registration, login, and MCQ stub UI) is next. The technical PRD in
+`ai-workspace/sprint-1-user-authentication_PRD.md` is the source of truth.
 
 ## Stack
 
@@ -22,10 +23,13 @@ for the current phase of work.
 - **Tailwind CSS v4**, configured in CSS rather than a JS config file
 - **shadcn/ui** on Base UI, `base-nova` style, with Lucide icons
 - **TypeScript** in strict mode
+- **Cloudflare D1** for user persistence (binding `DB`)
 - **Wrangler** for Cloudflare configuration, secrets, and deployment
+- **Vitest** for automated unit and route tests
+- **Zod** for request validation; **bcryptjs** for password hashing
 
-No database, authentication, testing framework, or AI SDK is installed yet. Do not
-write code that imports one without adding it first and telling the user.
+No AI SDK is installed yet. Do not write code that imports one without adding it first
+and telling the user.
 
 ## Layout
 
@@ -49,6 +53,7 @@ Import through the `@/` alias, which maps to `src/`.
 | `npm run preview` | Build and run on the local **Workers** runtime |
 | `npm run build` | Production build |
 | `npm run lint` | ESLint |
+| `npm run test` | Vitest (unit and API route tests) |
 | `npm run deploy` | Build and deploy to Cloudflare |
 | `npm run cf-typegen` | Regenerate `cloudflare-env.d.ts` after changing bindings |
 

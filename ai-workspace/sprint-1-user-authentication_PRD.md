@@ -366,29 +366,32 @@ Use shadcn/ui components (`button`, `card`, `field`, `input`, `label`) and theme
 
 ---
 
-### Phase 2: API Routes - PLANNED
+### Phase 2: API Routes - COMPLETED
 
 **Objective:** Implement all auth and user CRUD endpoints.
 
 **Tasks:**
 
-1. `POST /api/auth/register`
-2. `POST /api/auth/login`
-3. `POST /api/auth/logout`
-4. `POST /api/users`
-5. `GET /api/users`
-6. `GET /api/users/[id]`
-7. `PATCH /api/users/[id]`
-8. `DELETE /api/users/[id]`
-9. Map DB snake_case columns to camelCase in JSON responses
-10. Consistent error handling across routes
+1. ✅ `POST /api/auth/register`
+2. ✅ `POST /api/auth/login`
+3. ✅ `POST /api/auth/logout`
+4. ✅ `POST /api/users`
+5. ✅ `GET /api/users`
+6. ✅ `GET /api/users/[id]`
+7. ✅ `PATCH /api/users/[id]`
+8. ✅ `DELETE /api/users/[id]`
+9. ✅ Map DB snake_case columns to camelCase in JSON responses
+10. ✅ Consistent error handling across routes
 
 **Deliverables:**
 
 - Route handlers under `src/app/api/`
+- Shared helpers in `src/lib/api/users.ts`
 - No password or hash leakage in any response
 
----
+**Deployed:** 2026-08-26 — auth and user CRUD API routes live in production.
+
+**Production URL:** https://quiz-app.vikas-i.workers.dev
 
 ### Phase 3: Frontend Pages - PLANNED
 
@@ -504,22 +507,120 @@ if (!parsed.success) {
 
 ---
 
+## Test Cases
+
+This matrix maps Sprint 1 acceptance criteria to concrete test cases. **Automated** cases run via `npm run test`. **Manual** cases require `npm run preview` or browser testing (Phase 3 UI).
+
+### Phase 1 — Infrastructure
+
+| ID | Test case | Expected result | Type | Automated test |
+|----|-----------|-----------------|------|----------------|
+| P1-01 | `hashPassword` produces bcrypt hash | Hash starts with `$2`, differs from plain text | Unit | `src/lib/auth/password.test.ts` |
+| P1-02 | `verifyPassword` with correct password | Returns `true` | Unit | `src/lib/auth/password.test.ts` |
+| P1-03 | `verifyPassword` with wrong password | Returns `false` | Unit | `src/lib/auth/password.test.ts` |
+| P1-04 | `users` table exists in local D1 | Query returns `users` table | Manual | `wrangler d1 execute ... --local` |
+| P1-05 | Password stored as hash in D1 (not plain text) | `password_hash` column is bcrypt format | Manual | Inspect D1 after register |
+
+### Phase 2 — Validation schemas
+
+| ID | Test case | Expected result | Type | Automated test |
+|----|-----------|-----------------|------|----------------|
+| V-01 | Register with valid fields + lastName | Parse succeeds; email lowercased | Unit | `user-schemas.test.ts` |
+| V-02 | Register without lastName | Parse succeeds | Unit | `user-schemas.test.ts` |
+| V-03 | Register with empty lastName | Parse succeeds | Unit | `user-schemas.test.ts` |
+| V-04 | Register without firstName | Parse fails | Unit | `user-schemas.test.ts` |
+| V-05 | Register with invalid email | Parse fails | Unit | `user-schemas.test.ts` |
+| V-06 | Register with password &lt; 8 chars | Parse fails | Unit | `user-schemas.test.ts` |
+| V-07 | Login with valid email/password | Parse succeeds; email lowercased | Unit | `user-schemas.test.ts` |
+| V-08 | Login with invalid email | Parse fails | Unit | `user-schemas.test.ts` |
+| V-09 | Login with empty password | Parse fails | Unit | `user-schemas.test.ts` |
+| V-10 | Update with at least one field | Parse succeeds | Unit | `user-schemas.test.ts` |
+| V-11 | Update with empty object | Parse fails | Unit | `user-schemas.test.ts` |
+| V-12 | Update password &lt; 8 chars | Parse fails | Unit | `user-schemas.test.ts` |
+| V-13 | List users default pagination | `limit=50`, `offset=0` | Unit | `user-schemas.test.ts` |
+| V-14 | List users invalid limit (&gt;100) | Parse fails | Unit | `user-schemas.test.ts` |
+| V-15 | List users negative offset | Parse fails | Unit | `user-schemas.test.ts` |
+
+### Phase 2 — Auth API
+
+| ID | Test case | Expected result | Type | Automated test |
+|----|-----------|-----------------|------|----------------|
+| A-01 | `POST /api/auth/register` valid payload | `201`, `{ user }` without password fields | Unit | `auth-routes.test.ts` |
+| A-02 | `POST /api/auth/register` duplicate email | `409`, `EMAIL_TAKEN` | Unit | `auth-routes.test.ts` |
+| A-03 | `POST /api/auth/register` invalid email | `400`, `VALIDATION_ERROR` | Unit | `auth-routes.test.ts` |
+| A-04 | `POST /api/auth/register` invalid JSON | `400`, `INVALID_JSON` | Unit | `auth-routes.test.ts` |
+| A-05 | `POST /api/auth/login` valid credentials | `200`, safe user object | Unit | `auth-routes.test.ts` |
+| A-06 | `POST /api/auth/login` unknown email | `401`, generic error, `INVALID_CREDENTIALS` | Unit | `auth-routes.test.ts` |
+| A-07 | `POST /api/auth/login` wrong password | `401`, same message as unknown email | Unit | `auth-routes.test.ts` |
+| A-08 | `POST /api/auth/login` invalid email format | `400` | Unit | `auth-routes.test.ts` |
+| A-09 | `POST /api/auth/logout` | `200`, `{ success: true }` | Unit | `auth-routes.test.ts` |
+| A-10 | Register → login E2E via preview | User created, login returns same email | Manual | curl against preview URL |
+| A-11 | Response never contains password or hash | No `password`, `password_hash` in JSON | Unit + Manual | `auth-routes.test.ts` + inspect responses |
+
+### Phase 2 — User CRUD API
+
+| ID | Test case | Expected result | Type | Automated test |
+|----|-----------|-----------------|------|----------------|
+| U-01 | `POST /api/users` valid payload | `201`, user created | Unit | `users-routes.test.ts` |
+| U-02 | `POST /api/users` duplicate email | `409`, `EMAIL_TAKEN` | Unit | `users-routes.test.ts` |
+| U-03 | `GET /api/users` default list | `200`, `{ users, total }` | Unit | `users-routes.test.ts` |
+| U-04 | `GET /api/users?limit=500` | `400`, validation error | Unit | `users-routes.test.ts` |
+| U-05 | `GET /api/users/[id]` existing user | `200`, `{ user }` | Unit | `users-routes.test.ts` |
+| U-06 | `GET /api/users/[id]` missing user | `404`, `USER_NOT_FOUND` | Unit | `users-routes.test.ts` |
+| U-07 | `PATCH /api/users/[id]` update firstName | `200`, updated user | Unit | `users-routes.test.ts` |
+| U-08 | `PATCH /api/users/[id]` missing user | `404` | Unit | `users-routes.test.ts` |
+| U-09 | `PATCH /api/users/[id]` email taken | `409`, `EMAIL_TAKEN` | Unit | `users-routes.test.ts` |
+| U-10 | `PATCH /api/users/[id]` empty body | `400` | Unit | `users-routes.test.ts` |
+| U-11 | `DELETE /api/users/[id]` existing user | `200`, `{ success: true }` | Unit | `users-routes.test.ts` |
+| U-12 | `DELETE /api/users/[id]` missing user | `404` | Unit | `users-routes.test.ts` |
+| U-13 | Full CRUD lifecycle via preview | Create → read → update → delete | Manual | curl / Postman against preview |
+
+### Phase 2 — Shared user creation logic
+
+| ID | Test case | Expected result | Type | Automated test |
+|----|-----------|-----------------|------|----------------|
+| S-01 | `createUserFromRegisterInput` email taken | `{ ok: false, code: EMAIL_TAKEN }` | Unit | `users.test.ts` |
+| S-02 | `createUserFromRegisterInput` success | Hashes password, calls `createUser` | Unit | `users.test.ts` |
+
+### Phase 3 — UI (not yet implemented)
+
+| ID | Test case | Expected result | Type | Automated test |
+|----|-----------|-----------------|------|----------------|
+| UI-01 | Register form submits valid data | Redirect to `/mcqs` | Manual / E2E | Phase 3 |
+| UI-02 | Register form shows validation errors | Inline error messages | Manual / E2E | Phase 3 |
+| UI-03 | Login form valid credentials | Redirect to `/mcqs` | Manual / E2E | Phase 3 |
+| UI-04 | Login form invalid credentials | Shows "Invalid email or password" | Manual / E2E | Phase 3 |
+| UI-05 | MCQ stub shows placeholder + logout | Logout redirects to `/login` | Manual / E2E | Phase 3 |
+| UI-06 | Landing page links to login/register | Navigation works | Manual / E2E | Phase 3 |
+
+### Running automated tests
+
+```bash
+npm run test        # run once
+npm run test:watch  # watch mode
+```
+
+**Current automated coverage:** 43 tests across 5 files (Phase 1 + Phase 2). Phase 3 UI tests to be added when frontend pages are built.
+
+---
+
 ## Acceptance Criteria
 
 - [ ] A teacher can register with first name, email, and password; optional last name is supported
-- [ ] Duplicate email registration returns 409 with a clear error message
+- [x] Duplicate email registration returns 409 with a clear error message
 - [ ] Passwords are stored as bcrypt hashes in D1; plain-text passwords never appear in the database
-- [ ] A teacher can log in with correct email and password and receives a safe user object (no password fields)
-- [ ] Login with wrong email or password returns 401 with a generic "Invalid email or password" message
+- [x] A teacher can log in with correct email and password and receives a safe user object (no password fields)
+- [x] Login with wrong email or password returns 401 with a generic "Invalid email or password" message
 - [ ] After successful registration, the user is redirected to `/mcqs`
 - [ ] After successful login, the user is redirected to `/mcqs`
 - [ ] Logout calls `POST /api/auth/logout`, clears client state, and redirects to `/login`
 - [ ] MCQ stub page displays placeholder content and a logout control; no MCQ CRUD is present
-- [ ] `GET /api/users`, `GET /api/users/[id]`, `PATCH /api/users/[id]`, and `DELETE /api/users/[id]` work as specified
-- [ ] `POST /api/users` creates a user with the same rules as register
-- [ ] All API inputs are validated with Zod; invalid input returns 400
-- [ ] `npm run lint` passes
-- [ ] `npm run build` passes
+- [x] `GET /api/users`, `GET /api/users/[id]`, `PATCH /api/users/[id]`, and `DELETE /api/users/[id]` work as specified
+- [x] `POST /api/users` creates a user with the same rules as register
+- [x] All API inputs are validated with Zod; invalid input returns 400
+- [x] `npm run lint` passes
+- [x] `npm run build` passes
+- [x] Automated test suite passes (`npm run test` — 43 tests)
 - [ ] Manual smoke test passes on `npm run preview` (register → login → logout flow)
 
 ---
@@ -545,6 +646,8 @@ if (!parsed.success) {
 | `zod` | Request and form validation |
 | `bcryptjs` | Password hashing and comparison |
 | `@types/bcryptjs` | TypeScript types (dev) |
+| `vitest` | Automated unit and route tests (dev) |
+| `vite-tsconfig-paths` | `@/` alias resolution in tests (dev) |
 
 ### Internal Dependencies
 
@@ -590,6 +693,86 @@ None required for Sprint 1. No auth secrets or third-party API keys.
 
 - **Risk:** `/mcqs` is reachable without logging in.
 - **Mitigation:** Accept for Sprint 1; route guards deferred until session management is in scope.
+
+---
+
+## Deployment and Verification (Phase 2)
+
+**Deployed:** 2026-08-26  
+**Production URL:** https://quiz-app.vikas-i.workers.dev
+
+All auth and user CRUD API routes are live. Test locally with `npm run preview` (port 8787) or against production using the curl examples below.
+
+### What was deployed
+
+| Item | Detail |
+|------|--------|
+| Auth routes | `POST /api/auth/register`, `/login`, `/logout` |
+| User CRUD routes | `GET/POST /api/users`, `GET/PATCH/DELETE /api/users/[id]` |
+| Shared API helpers | `src/lib/api/users.ts` |
+| Automated tests | 43 Vitest tests — run with `npm run test` |
+| Test dependencies | `vitest`, `vite-tsconfig-paths` |
+
+### API endpoints available
+
+| Method | Route | Purpose |
+|--------|-------|---------|
+| POST | `/api/auth/register` | Create account |
+| POST | `/api/auth/login` | Verify credentials |
+| POST | `/api/auth/logout` | Acknowledge logout |
+| POST | `/api/users` | Create user (CRUD) |
+| GET | `/api/users` | List users (`?limit=&offset=`) |
+| GET | `/api/users/[id]` | Get user by ID |
+| PATCH | `/api/users/[id]` | Update user |
+| DELETE | `/api/users/[id]` | Delete user |
+
+### Example verification (curl)
+
+**Production register:**
+
+```bash
+curl -X POST https://quiz-app.vikas-i.workers.dev/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Jane","lastName":"Doe","email":"jane@example.com","password":"securePass123"}'
+```
+
+**Production login:**
+
+```bash
+curl -X POST https://quiz-app.vikas-i.workers.dev/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"jane@example.com","password":"securePass123"}'
+```
+
+**Production list users:**
+
+```bash
+curl https://quiz-app.vikas-i.workers.dev/api/users
+```
+
+**Local preview (port 8787):**
+
+```bash
+curl -X POST http://localhost:8787/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Jane","lastName":"Doe","email":"jane@example.com","password":"securePass123"}'
+```
+
+### Not yet available for testing
+
+- `/register`, `/login`, `/mcqs` pages — Phase 3
+- End-to-end browser register → login → logout flow — Phase 3
+
+### Phase 2 acceptance criteria status
+
+- [x] All auth and user CRUD API endpoints implemented
+- [x] Zod validation on all mutating routes and list query params
+- [x] Passwords hashed before storage; never returned in responses
+- [x] Duplicate email returns 409 with `EMAIL_TAKEN`
+- [x] Invalid login returns 401 with `INVALID_CREDENTIALS`
+- [x] `npm run lint` passes
+- [x] `npm run build` passes
+- [x] Automated test suite passes (`npm run test` — 43 tests)
 
 ---
 
@@ -646,10 +829,8 @@ Expected output includes a `users` table.
 
 ### Not yet available for testing
 
-- `POST /api/auth/register`, `/login`, `/logout` — Phase 2
-- `GET/POST/PATCH/DELETE /api/users` — Phase 2
 - `/register`, `/login`, `/mcqs` pages — Phase 3
-- End-to-end register → login → logout flow — Phase 3
+- End-to-end browser register → login → logout flow — Phase 3
 
 ### Phase 1 acceptance criteria status
 
@@ -687,6 +868,6 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated:** 2026-08-26
-**Current Phase:** Phase 2 — API Routes
-**Status:** IN PROGRESS (Phase 1 complete and deployed)
-**Next Steps:** Implement auth and user CRUD API route handlers (Phase 2), then frontend pages (Phase 3)
+**Current Phase:** Phase 3 — Frontend Pages
+**Status:** IN PROGRESS (Phase 2 complete and deployed)
+**Next Steps:** Build `/register`, `/login`, `/mcqs` pages; run `npm run test` before each deploy
