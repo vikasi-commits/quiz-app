@@ -180,6 +180,10 @@ describe("updateQuestion", () => {
 		});
 
 		expect(mockBatch).toHaveBeenCalled();
+		const batchStatements = mockBatch.mock.calls[0]?.[0] as Array<{ bind: ReturnType<typeof vi.fn> }>;
+		expect(batchStatements[0]).toBeDefined();
+		expect(mockPrepare).toHaveBeenCalledWith("DELETE FROM mcq_attempts WHERE question_id = ?1");
+		expect(mockPrepare).toHaveBeenCalledWith("DELETE FROM mcq_choices WHERE question_id = ?1");
 		expect(question?.name).toBe("Updated Name");
 		expect(question?.choices[1]?.choiceText).toBe("Berlin");
 	});

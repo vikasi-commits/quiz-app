@@ -210,6 +210,7 @@ export async function updateQuestion(id: string, input: CreateMcqInput): Promise
 	const db = await getDb();
 
 	await db.batch([
+		db.prepare("DELETE FROM mcq_attempts WHERE question_id = ?1").bind(id),
 		db.prepare("DELETE FROM mcq_choices WHERE question_id = ?1").bind(id),
 		db
 			.prepare(
