@@ -485,7 +485,7 @@ Used by both create and edit pages. Client component (`'use client'`).
 
 ---
 
-### Phase 2: MCQ Service Layer — PLANNED
+### Phase 2: MCQ Service Layer — COMPLETED
 
 **Objective:** Centralize all MCQ D1 queries in a service module, following `user-service.ts` patterns.
 
@@ -493,8 +493,8 @@ Used by both create and edit pages. Client component (`'use client'`).
 
 **Tasks:**
 
-1. Add `src/lib/validation/mcq-schemas.ts` with Zod schemas (shared by service tests and API routes)
-2. Write service tests covering:
+1. ✅ Add `src/lib/validation/mcq-schemas.ts` with Zod schemas (shared by service tests and API routes)
+2. ✅ Write service tests covering:
    - Create question with choices (exactly one correct)
    - List all questions
    - Get question by id (with choices)
@@ -504,8 +504,8 @@ Used by both create and edit pages. Client component (`'use client'`).
    - Record attempt (server-side correctness lookup)
    - Validation rejections (too few/many choices, empty text, zero or multiple correct)
    - Not-found cases
-3. Implement `src/lib/services/mcq-service.ts`
-4. Add `src/lib/api/mcqs.ts` with shared helpers (`apiError`, `validationError`, `parseJsonBody`) mirroring `src/lib/api/users.ts`
+3. ✅ Implement `src/lib/services/mcq-service.ts`
+4. ✅ Add `src/lib/api/mcqs.ts` with shared helpers (`apiError`, `validationError`, `parseJsonBody`) mirroring `src/lib/api/users.ts`
 
 **Deliverables:**
 
@@ -513,7 +513,7 @@ Used by both create and edit pages. Client component (`'use client'`).
 - `src/lib/services/mcq-service.ts` + `mcq-service.test.ts`
 - `src/lib/api/mcqs.ts` + `mcqs.test.ts`
 
-**Status:** PLANNED
+**Status:** COMPLETED
 
 ---
 
@@ -837,7 +837,7 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated:** 2026-09-03
-**Current Phase:** Phase 2 — MCQ Service Layer
-**Status:** IN PROGRESS (Phase 1 deployed; Phase 2 not started)
+**Current Phase:** Phase 3 — API Routes
+**Status:** IN PROGRESS (Phase 2 deployed; Phase 3 not started)
 **Branch:** `sprint-2`
-**Next Steps:** Begin Phase 2 MCQ service layer (TDD)
+**Next Steps:** Begin Phase 3 API routes (TDD)
