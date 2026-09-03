@@ -1,5 +1,5 @@
-import { McqStub } from "@/components/auth/mcq-stub";
+import { McqList } from "@/components/mcq/mcq-list";
 
 export default function McqsPage() {
-	return <McqStub />;
+	return <McqList />;
 }

@@ -23,7 +23,7 @@ const phase3Files = [
 	"src/app/mcqs/page.tsx",
 	"src/components/auth/register-form.tsx",
 	"src/components/auth/login-form.tsx",
-	"src/components/auth/mcq-stub.tsx",
+	"src/components/mcq/mcq-list.tsx",
 	"src/components/home/landing-hero.tsx",
 ];
 

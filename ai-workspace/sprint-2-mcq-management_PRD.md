@@ -543,7 +543,7 @@ Used by both create and edit pages. Client component (`'use client'`).
 
 ---
 
-### Phase 4: Frontend UI — PLANNED
+### Phase 4: Frontend UI — COMPLETED
 
 **Objective:** Replace stub with full MCQ management UI.
 
@@ -551,22 +551,24 @@ Used by both create and edit pages. Client component (`'use client'`).
 
 **Tasks:**
 
-1. Add required shadcn components (`textarea`, `dropdown-menu`, `alert-dialog`, `radio-group`)
-2. Write tests for:
+1. ✅ Add required shadcn components (`textarea`, `dropdown-menu`, `alert-dialog`, `radio-group`)
+2. ✅ Write tests for:
    - `McqQuestionForm` — fields, add/remove choices, validation, correct-answer selection
    - `McqListTable` (or equivalent) — renders rows, dropdown actions, delete confirmation
    - `McqPreview` — radio selection, submit, result display
-3. Build components:
+3. ✅ Build components:
    - `src/components/mcq/mcq-question-form.tsx` (shared create/edit)
    - `src/components/mcq/mcq-list.tsx` (table + actions)
+   - `src/components/mcq/mcq-list-table.tsx` (table + delete dialog)
    - `src/components/mcq/mcq-preview.tsx`
-4. Build pages:
+   - `src/components/mcq/mcq-question-page.tsx` (shared create/edit page)
+4. ✅ Build pages:
    - `src/app/mcqs/page.tsx` — replace stub with list
    - `src/app/mcqs/new/page.tsx` — create
    - `src/app/mcqs/[id]/edit/page.tsx` — edit
    - `src/app/mcqs/[id]/preview/page.tsx` — preview
-5. Remove or repurpose `src/components/auth/mcq-stub.tsx` and its test
-6. Save/Cancel buttons: equal width, side by side, below form
+5. ✅ Remove `src/components/auth/mcq-stub.tsx` and its test
+6. ✅ Save/Cancel buttons: equal width, side by side, below form
 
 **Deliverables:**
 
@@ -574,7 +576,7 @@ Used by both create and edit pages. Client component (`'use client'`).
 - Component test files (`*.test.tsx`)
 - Updated shadcn UI components
 
-**Status:** PLANNED
+**Status:** COMPLETED
 
 ---
 
@@ -727,16 +729,16 @@ if (!parsed.success) {
 
 ### UI
 
-- [ ] `/mcqs` shows a table of all questions with name, question text, and actions column
-- [ ] Create button navigates to `/mcqs/new`
-- [ ] Actions dropdown offers Edit, Preview, and Delete
-- [ ] Delete shows Alert Dialog confirmation before removing
-- [ ] Create and edit pages share `McqQuestionForm`
-- [ ] Form starts with 2 empty choice rows; teacher can add up to 6
-- [ ] Exactly one choice can be marked correct on the form
-- [ ] Save and Cancel buttons are side by side with equal width below the form
-- [ ] Preview page uses RadioGroup; submit shows Correct/Incorrect feedback
-- [ ] Preview does not reveal the correct answer on a wrong attempt
+- [x] `/mcqs` shows a table of all questions with name, question text, and actions column
+- [x] Create button navigates to `/mcqs/new`
+- [x] Actions dropdown offers Edit, Preview, and Delete
+- [x] Delete shows Alert Dialog confirmation before removing
+- [x] Create and edit pages share `McqQuestionForm`
+- [x] Form starts with 2 empty choice rows; teacher can add up to 6
+- [x] Exactly one choice can be marked correct on the form
+- [x] Save and Cancel buttons are side by side with equal width below the form
+- [x] Preview page uses RadioGroup; submit shows Correct/Incorrect feedback
+- [x] Preview does not reveal the correct answer on a wrong attempt
 
 ### Process and quality
 
@@ -837,7 +839,7 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated:** 2026-09-03
-**Current Phase:** Phase 4 — Frontend UI
-**Status:** IN PROGRESS (Phase 3 deployed; Phase 4 not started)
-**Branch:** `sprint-2`
-**Next Steps:** Begin Phase 4 frontend UI (TDD)
+**Current Phase:** Phase 5 — Verification and Documentation Close-out
+**Status:** IN PROGRESS (Phase 4 deployed; Phase 5 not started)
+**Branch:** `main`
+**Next Steps:** Begin Phase 5 verification and AGENTS.md close-out
