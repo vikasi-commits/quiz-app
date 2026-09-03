@@ -33,7 +33,7 @@ describe("McqList", () => {
 		expect(screen.getByText("What is the capital of France?")).toBeInTheDocument();
 	});
 
-	it("navigates to create page from the create button", async () => {
+	it("navigates to create page from the empty-state create button", async () => {
 		vi.stubGlobal(
 			"fetch",
 			vi.fn().mockResolvedValue({
@@ -48,6 +48,21 @@ describe("McqList", () => {
 		await user.click(await screen.findByRole("button", { name: /create question/i }));
 
 		expect(mockPush).toHaveBeenCalledWith("/mcqs/new");
+	});
+
+	it("shows a single create button in the header when questions exist", async () => {
+		vi.stubGlobal(
+			"fetch",
+			vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({ questions: [mockMcqSummary] }),
+			}),
+		);
+
+		render(<McqList />);
+
+		expect(await screen.findByText("Chapter 5 Review")).toBeInTheDocument();
+		expect(screen.getAllByRole("button", { name: /create question/i })).toHaveLength(1);
 	});
 });
 

@@ -70,7 +70,9 @@ export function McqList() {
 						<p className="text-muted-foreground text-sm">Create and manage multiple-choice questions.</p>
 					</div>
 					<div className="flex gap-2">
-						<Button onClick={() => router.push("/mcqs/new")}>Create Question</Button>
+						{!isLoading && questions.length > 0 ? (
+							<Button onClick={() => router.push("/mcqs/new")}>Create Question</Button>
+						) : null}
 						<Button variant="outline" onClick={handleLogout} disabled={isLoggingOut}>
 							{isLoggingOut ? "Logging out..." : "Log out"}
 						</Button>

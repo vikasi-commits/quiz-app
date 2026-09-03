@@ -1,0 +1,19 @@
+---
+description: End-of-phase verification, approval gate, and commit workflow
+alwaysApply: true
+---
+
+# Phase Commit Workflow
+
+At the end of **every implementation phase**:
+
+1. Run `npm run test` and `npm run lint`. Show the **real terminal output** — do not summarize or guess.
+2. **Stop and wait** for explicit user approval before committing anything.
+3. Only after approval: commit and push that phase's work to the **current feature branch** as its **own commit**.
+4. In the **same commit**, update the active PRD:
+   - the completed phase's status marker (e.g. `— COMPLETED`)
+   - the **Current Status** section (phase, status, last updated)
+
+Do not commit, push, merge, or deploy at phase end unless the user explicitly asks.
+
+If a phase also needs `npm run build` or `npm run preview`, run those when the PRD or task requires it and include the real output in the phase review.

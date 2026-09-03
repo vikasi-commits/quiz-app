@@ -11,6 +11,24 @@ This sprint replaces the `/mcqs` stub with a full MCQ management experience back
 
 ---
 
+## Assignment Scope Control
+
+This project is graded on **tight scope control**. The following are **explicitly not building**:
+
+- Sessions (cookies, JWT, server-side auth)
+- Question types other than MCQ
+- Question bank organization (categories, tags, folders)
+- Search, sorting, or pagination
+- Sharing questions between teachers
+- Quizzes, grading reports, or analytics
+- Image uploads or rich-text editors
+- Student-facing flows
+- E2E test framework (Playwright, Cypress, etc.)
+
+If implementation suggests anything **outside this list** is needed, **ask first** — do not build it.
+
+---
+
 ## Hypothesis
 
 We believe that providing create, read, update, delete, and preview flows for multiple-choice questions will let teachers build and validate their test-bank content without waiting for session management or student-facing quiz delivery.
@@ -53,7 +71,7 @@ We believe that providing create, read, update, delete, and preview flows for mu
 - **Server Actions for MCQ mutations** — Sprint 1 established REST API routes with Zod validation and consistent error shapes. This sprint follows the same pattern rather than introducing Server Actions for MCQ forms. Forms call the API from client components.
 - **Auth middleware / route protection** — Requires session management, which is explicitly excluded. Anyone can navigate to `/mcqs` and its sub-routes by URL, consistent with Sprint 1.
 - **Populating `created_by` / `user_id` at runtime** — Schema columns and foreign keys are in place for future work, but values are `NULL` until sessions exist. See Known Limitations.
-- **Revealing the correct answer on a wrong preview attempt** — Preview feedback is limited to "Correct" or "Incorrect". The correct choice is not disclosed, keeping the preview closer to a student experience.
+- **Revealing the correct answer only after exhausting preview attempts** — Three attempts per preview; the correct choice is disclosed on the third failed attempt only.
 - **Partial choice updates on PATCH** — Updating a question replaces all choices in a single transaction (delete existing choices, insert new ones). Simpler than per-choice upsert for this sprint.
 - **Dedicated preview API returning shuffled choices** — Choices are returned in `sort_order`. Randomization is out of scope.
 
@@ -457,9 +475,9 @@ Used by both create and edit pages. Client component (`'use client'`).
 
 1. **TDD:** Write tests first. Run them and confirm they fail for the right reason. Then implement until they pass.
 2. **Phase gate:** Complete one phase, then **stop and wait for explicit user approval** before starting the next.
-3. **Commit per phase:** After approval, commit and push that phase's work to `sprint-2` as its own commit. Update this PRD's phase status marker and Current Status section in the same commit.
+3. **Commit per phase:** See `.cursor/rules/phase-commit.mdc` — after approval, commit and push to the current feature branch; update this PRD's phase status and Current Status in the same commit.
 4. **Do not deploy** or apply remote D1 migrations unless explicitly asked.
-5. **Verify:** Run `npm run lint`, `npm run build`, and `npm run test` before requesting phase review. Phase 5 additionally requires `npm run preview`.
+5. **Verify:** Run `npm run test` and `npm run lint` before requesting phase review (show real output). Run `npm run build` and `npm run preview` when the PRD or phase requires it.
 
 ---
 
@@ -888,7 +906,7 @@ When working with this PRD:
 8. After approval, commit + push to `sprint-2` and update phase status in this PRD.
 9. Verify with `npm run lint`, `npm run build`, `npm run test` (and `npm run preview` in Phase 5).
 10. Do not deploy or apply remote D1 migrations unless explicitly asked.
-11. If a requirement seems to need something on the "Explicitly Not Building" list, ask first.
+11. If a requirement seems to need something on the **Assignment Scope Control** or **Explicitly Not Building** lists, ask first.
 
 ---
 
