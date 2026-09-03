@@ -274,35 +274,55 @@ describe("POST /api/mcqs/[id]/attempts", () => {
 		vi.clearAllMocks();
 	});
 
-	it("returns server-computed correctness", async () => {
-		vi.mocked(recordAttempt).mockResolvedValue({ ok: true, isCorrect: true });
+	it("returns server-computed correctness and attempt metadata", async () => {
+		vi.mocked(recordAttempt).mockResolvedValue({
+			ok: true,
+			isCorrect: true,
+			attemptNumber: 1,
+			attemptsRemaining: 2,
+			isExhausted: true,
+		});
 
 		const response = await recordAttemptPost(
-			jsonRequest({ selectedChoiceId: "c1" }),
+			jsonRequest({ selectedChoiceId: "c1", attemptNumber: 1 }),
 			{ params: Promise.resolve({ id: "q1" }) },
 		);
 
 		expect(response.status).toBe(200);
-		const body = await readJson<{ isCorrect: boolean }>(response);
+		const body = await readJson<{
+			isCorrect: boolean;
+			attemptNumber: number;
+			attemptsRemaining: number;
+			isExhausted: boolean;
+		}>(response);
 		expect(body.isCorrect).toBe(true);
-		expect(recordAttempt).toHaveBeenCalledWith("q1", "c1");
+		expect(body.attemptNumber).toBe(1);
+		expect(body.attemptsRemaining).toBe(2);
+		expect(body.isExhausted).toBe(true);
+		expect(recordAttempt).toHaveBeenCalledWith("q1", "c1", 1);
 	});
 
-	it("ignores client-supplied isCorrect and only passes selectedChoiceId to service", async () => {
-		vi.mocked(recordAttempt).mockResolvedValue({ ok: true, isCorrect: false });
+	it("ignores client-supplied isCorrect and only passes validated fields to service", async () => {
+		vi.mocked(recordAttempt).mockResolvedValue({
+			ok: true,
+			isCorrect: false,
+			attemptNumber: 2,
+			attemptsRemaining: 1,
+			isExhausted: false,
+		});
 
 		await recordAttemptPost(
-			jsonRequest({ selectedChoiceId: "c2", isCorrect: true }),
+			jsonRequest({ selectedChoiceId: "c2", attemptNumber: 2, isCorrect: true }),
 			{ params: Promise.resolve({ id: "q1" }) },
 		);
 
-		expect(recordAttempt).toHaveBeenCalledWith("q1", "c2");
+		expect(recordAttempt).toHaveBeenCalledWith("q1", "c2", 2);
 	});
 
 	it("returns 404 when question is not found", async () => {
 		vi.mocked(recordAttempt).mockResolvedValue({ ok: false, code: "QUESTION_NOT_FOUND" });
 
-		const response = await recordAttemptPost(jsonRequest({ selectedChoiceId: "c1" }), {
+		const response = await recordAttemptPost(jsonRequest({ selectedChoiceId: "c1", attemptNumber: 1 }), {
 			params: Promise.resolve({ id: "missing" }),
 		});
 
@@ -312,7 +332,7 @@ describe("POST /api/mcqs/[id]/attempts", () => {
 	it("returns 400 when choice is invalid for question", async () => {
 		vi.mocked(recordAttempt).mockResolvedValue({ ok: false, code: "INVALID_CHOICE" });
 
-		const response = await recordAttemptPost(jsonRequest({ selectedChoiceId: "bad" }), {
+		const response = await recordAttemptPost(jsonRequest({ selectedChoiceId: "bad", attemptNumber: 1 }), {
 			params: Promise.resolve({ id: "q1" }),
 		});
 

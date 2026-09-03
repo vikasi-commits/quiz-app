@@ -1,6 +1,7 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 import type { CreateMcqInput } from "@/lib/validation/mcq-schemas";
+import { MAX_PREVIEW_ATTEMPTS } from "@/lib/validation/mcq-schemas";
 
 export type McqQuestionRow = {
 	id: string;
@@ -53,7 +54,14 @@ export type McqPreviewQuestion = {
 };
 
 export type RecordAttemptResult =
-	| { ok: true; isCorrect: boolean }
+	| {
+			ok: true;
+			isCorrect: boolean;
+			attemptNumber: number;
+			attemptsRemaining: number;
+			isExhausted: boolean;
+			correctChoice?: { id: string; choiceText: string };
+	  }
 	| { ok: false; code: "QUESTION_NOT_FOUND" | "INVALID_CHOICE" };
 
 const QUESTION_COLUMNS = "id, name, question_text, created_by, created_at, updated_at";
@@ -236,9 +244,25 @@ export async function deleteQuestion(id: string): Promise<boolean> {
 	return (result.meta.changes ?? 0) > 0;
 }
 
+async function findCorrectChoiceByQuestionId(questionId: string): Promise<McqChoiceRow | null> {
+	const db = await getDb();
+	const result = await db
+		.prepare(
+			`SELECT ${CHOICE_COLUMNS}
+       FROM mcq_choices
+       WHERE question_id = ?1 AND is_correct = 1
+       LIMIT 1`,
+		)
+		.bind(questionId)
+		.all<McqChoiceRow>();
+
+	return result.results[0] ?? null;
+}
+
 export async function recordAttempt(
 	questionId: string,
 	selectedChoiceId: string,
+	attemptNumber: number,
 ): Promise<RecordAttemptResult> {
 	const question = await findQuestionRowById(questionId);
 	if (!question) {
@@ -261,6 +285,8 @@ export async function recordAttempt(
 	}
 
 	const isCorrect = choice.is_correct === 1;
+	const attemptsRemaining = Math.max(0, MAX_PREVIEW_ATTEMPTS - attemptNumber);
+	const isExhausted = isCorrect || attemptNumber >= MAX_PREVIEW_ATTEMPTS;
 
 	await db
 		.prepare(
@@ -270,5 +296,23 @@ export async function recordAttempt(
 		.bind(questionId, selectedChoiceId, isCorrect ? 1 : 0)
 		.all();
 
-	return { ok: true, isCorrect };
+	let correctChoice: { id: string; choiceText: string } | undefined;
+	if (!isCorrect && isExhausted) {
+		const correct = await findCorrectChoiceByQuestionId(questionId);
+		if (correct) {
+			correctChoice = {
+				id: correct.id,
+				choiceText: correct.choice_text,
+			};
+		}
+	}
+
+	return {
+		ok: true,
+		isCorrect,
+		attemptNumber,
+		attemptsRemaining,
+		isExhausted,
+		correctChoice,
+	};
 }

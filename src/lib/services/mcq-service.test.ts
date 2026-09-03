@@ -213,32 +213,63 @@ describe("recordAttempt", () => {
 			.mockResolvedValueOnce({ results: [choiceRows[0]] })
 			.mockResolvedValueOnce({ results: [] });
 
-		const result = await recordAttempt("q1", "c1");
+		const result = await recordAttempt("q1", "c1", 1);
 
-		expect(result).toEqual({ ok: true, isCorrect: true });
+		expect(result).toEqual({
+			ok: true,
+			isCorrect: true,
+			attemptNumber: 1,
+			attemptsRemaining: 2,
+			isExhausted: true,
+		});
 		expect(mockPrepare).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO mcq_attempts"));
 		expect(mockBind).toHaveBeenLastCalledWith("q1", "c1", 1);
 	});
 
-	it("returns false for an incorrect choice", async () => {
+	it("returns retry metadata for an incorrect choice with attempts remaining", async () => {
 		mockAll
 			.mockResolvedValueOnce({ results: [questionRow] })
 			.mockResolvedValueOnce({ results: [choiceRows[1]] })
 			.mockResolvedValueOnce({ results: [] });
 
-		const result = await recordAttempt("q1", "c2");
+		const result = await recordAttempt("q1", "c2", 1);
 
-		expect(result).toEqual({ ok: true, isCorrect: false });
+		expect(result).toEqual({
+			ok: true,
+			isCorrect: false,
+			attemptNumber: 1,
+			attemptsRemaining: 2,
+			isExhausted: false,
+		});
 		expect(mockBind).toHaveBeenLastCalledWith("q1", "c2", 0);
+	});
+
+	it("reveals the correct choice on the final failed attempt", async () => {
+		mockAll
+			.mockResolvedValueOnce({ results: [questionRow] })
+			.mockResolvedValueOnce({ results: [choiceRows[1]] })
+			.mockResolvedValueOnce({ results: [] })
+			.mockResolvedValueOnce({ results: [choiceRows[0]] });
+
+		const result = await recordAttempt("q1", "c2", 3);
+
+		expect(result).toEqual({
+			ok: true,
+			isCorrect: false,
+			attemptNumber: 3,
+			attemptsRemaining: 0,
+			isExhausted: true,
+			correctChoice: { id: "c1", choiceText: "Paris" },
+		});
 	});
 
 	it("returns QUESTION_NOT_FOUND when question is missing", async () => {
 		mockAll.mockResolvedValue({ results: [] });
-		expect(await recordAttempt("missing", "c1")).toEqual({ ok: false, code: "QUESTION_NOT_FOUND" });
+		expect(await recordAttempt("missing", "c1", 1)).toEqual({ ok: false, code: "QUESTION_NOT_FOUND" });
 	});
 
 	it("returns INVALID_CHOICE when choice does not belong to question", async () => {
 		mockAll.mockResolvedValueOnce({ results: [questionRow] }).mockResolvedValueOnce({ results: [] });
-		expect(await recordAttempt("q1", "bad-choice")).toEqual({ ok: false, code: "INVALID_CHOICE" });
+		expect(await recordAttempt("q1", "bad-choice", 1)).toEqual({ ok: false, code: "INVALID_CHOICE" });
 	});
 });

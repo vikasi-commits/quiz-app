@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const MAX_PREVIEW_ATTEMPTS = 3;
+
 const trimmedString = (min: number, max: number) =>
 	z
 		.string()
@@ -28,6 +30,11 @@ export const updateMcqSchema = mcqBodySchema;
 
 export const recordAttemptSchema = z.object({
 	selectedChoiceId: z.string().trim().min(1, "Selected choice is required"),
+	attemptNumber: z
+		.number()
+		.int("Attempt number must be a whole number")
+		.min(1, "Attempt number must be at least 1")
+		.max(MAX_PREVIEW_ATTEMPTS, `Attempt number must be at most ${MAX_PREVIEW_ATTEMPTS}`),
 });
 
 export type CreateMcqInput = z.infer<typeof createMcqSchema>;

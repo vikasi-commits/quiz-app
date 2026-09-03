@@ -109,18 +109,23 @@ describe("updateMcqSchema", () => {
 });
 
 describe("recordAttemptSchema", () => {
-	it("accepts a selected choice id", () => {
-		const result = recordAttemptSchema.safeParse({ selectedChoiceId: "choice-1" });
+	it("accepts a selected choice id and attempt number", () => {
+		const result = recordAttemptSchema.safeParse({ selectedChoiceId: "choice-1", attemptNumber: 1 });
 		expect(result.success).toBe(true);
 	});
 
 	it("rejects empty selectedChoiceId", () => {
-		const result = recordAttemptSchema.safeParse({ selectedChoiceId: "" });
+		const result = recordAttemptSchema.safeParse({ selectedChoiceId: "", attemptNumber: 1 });
 		expect(result.success).toBe(false);
 	});
 
 	it("rejects missing selectedChoiceId", () => {
-		const result = recordAttemptSchema.safeParse({});
+		const result = recordAttemptSchema.safeParse({ attemptNumber: 1 });
 		expect(result.success).toBe(false);
+	});
+
+	it("rejects attempt numbers outside the allowed range", () => {
+		expect(recordAttemptSchema.safeParse({ selectedChoiceId: "choice-1", attemptNumber: 0 }).success).toBe(false);
+		expect(recordAttemptSchema.safeParse({ selectedChoiceId: "choice-1", attemptNumber: 4 }).success).toBe(false);
 	});
 });

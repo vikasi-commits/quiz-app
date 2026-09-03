@@ -19,7 +19,7 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
 	}
 
 	try {
-		const result = await recordAttempt(id, parsed.data.selectedChoiceId);
+		const result = await recordAttempt(id, parsed.data.selectedChoiceId, parsed.data.attemptNumber);
 
 		if (!result.ok) {
 			if (result.code === "QUESTION_NOT_FOUND") {
@@ -29,7 +29,13 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
 			return apiError("Selected choice is invalid for this question", "INVALID_CHOICE", 400);
 		}
 
-		return Response.json({ isCorrect: result.isCorrect });
+		return Response.json({
+			isCorrect: result.isCorrect,
+			attemptNumber: result.attemptNumber,
+			attemptsRemaining: result.attemptsRemaining,
+			isExhausted: result.isExhausted,
+			correctChoice: result.correctChoice,
+		});
 	} catch {
 		return apiError("Internal server error", "INTERNAL_ERROR", 500);
 	}
