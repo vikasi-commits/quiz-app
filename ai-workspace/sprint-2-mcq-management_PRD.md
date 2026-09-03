@@ -517,7 +517,7 @@ Used by both create and edit pages. Client component (`'use client'`).
 
 ---
 
-### Phase 3: API Routes — PLANNED
+### Phase 3: API Routes — COMPLETED
 
 **Objective:** Expose MCQ operations as REST endpoints.
 
@@ -525,21 +525,21 @@ Used by both create and edit pages. Client component (`'use client'`).
 
 **Tasks:**
 
-1. Write route tests for all endpoints (happy path + error paths)
-2. Implement route handlers:
+1. ✅ Write route tests for all endpoints (happy path + error paths)
+2. ✅ Implement route handlers:
    - `src/app/api/mcqs/route.ts` — GET list, POST create
    - `src/app/api/mcqs/[id]/route.ts` — GET one, PATCH update, DELETE
    - `src/app/api/mcqs/[id]/preview/route.ts` — GET preview
    - `src/app/api/mcqs/[id]/attempts/route.ts` — POST attempt
-3. Consistent error codes and camelCase JSON responses
-4. Attempt endpoint must never trust client-supplied correctness
+3. ✅ Consistent error codes and camelCase JSON responses
+4. ✅ Attempt endpoint must never trust client-supplied correctness
 
 **Deliverables:**
 
 - Route handlers under `src/app/api/mcqs/`
-- `src/app/api/mcqs/mcq-routes.test.ts` (or split per route)
+- `src/app/api/mcqs/mcq-routes.test.ts`
 
-**Status:** PLANNED
+**Status:** COMPLETED
 
 ---
 
@@ -714,16 +714,16 @@ if (!parsed.success) {
 
 ### API
 
-- [ ] `GET /api/mcqs` returns all questions without pagination
-- [ ] `POST /api/mcqs` creates a question with 2–6 choices and exactly one correct
-- [ ] `GET /api/mcqs/[id]` returns a question with choices including `isCorrect`
-- [ ] `GET /api/mcqs/[id]/preview` returns choices without `isCorrect`
-- [ ] `PATCH /api/mcqs/[id]` updates a question and replaces choices
-- [ ] `DELETE /api/mcqs/[id]` deletes a question and cascades to choices and attempts
-- [ ] `POST /api/mcqs/[id]/attempts` records an attempt and returns server-computed `isCorrect`
-- [ ] All write endpoints reject invalid input with `400` and `VALIDATION_ERROR`
-- [ ] Missing questions return `404` with `QUESTION_NOT_FOUND`
-- [ ] Error shape matches Sprint 1 (`{ error, code }`)
+- [x] `GET /api/mcqs` returns all questions without pagination
+- [x] `POST /api/mcqs` creates a question with 2–6 choices and exactly one correct
+- [x] `GET /api/mcqs/[id]` returns a question with choices including `isCorrect`
+- [x] `GET /api/mcqs/[id]/preview` returns choices without `isCorrect`
+- [x] `PATCH /api/mcqs/[id]` updates a question and replaces choices
+- [x] `DELETE /api/mcqs/[id]` deletes a question and cascades to choices and attempts
+- [x] `POST /api/mcqs/[id]/attempts` records an attempt and returns server-computed `isCorrect`
+- [x] All write endpoints reject invalid input with `400` and `VALIDATION_ERROR`
+- [x] Missing questions return `404` with `QUESTION_NOT_FOUND`
+- [x] Error shape matches Sprint 1 (`{ error, code }`)
 
 ### UI
 
@@ -837,7 +837,7 @@ When working with this PRD:
 ## Current Status
 
 **Last Updated:** 2026-09-03
-**Current Phase:** Phase 3 — API Routes
-**Status:** IN PROGRESS (Phase 2 deployed; Phase 3 not started)
+**Current Phase:** Phase 4 — Frontend UI
+**Status:** IN PROGRESS (Phase 3 deployed; Phase 4 not started)
 **Branch:** `sprint-2`
-**Next Steps:** Begin Phase 3 API routes (TDD)
+**Next Steps:** Begin Phase 4 frontend UI (TDD)
