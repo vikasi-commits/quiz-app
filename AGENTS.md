@@ -11,10 +11,11 @@ the problem, the primary user, and the current state. Two or three sentences.
 Keep it current. An out-of-date description here misleads every future conversation.
 -->
 
-This is a collaborative MCQ test-bank quiz app for teachers. Sprint 1 is in progress:
-Phase 1 (D1 user store) and Phase 2 (auth and user CRUD API routes) are deployed.
-Phase 3 (registration, login, MCQ stub UI) and Phase 4 (automated verification, 90 tests) are
-deployed. The technical PRD in `ai-workspace/sprint-1-user-authentication_PRD.md` is the source of truth.
+This is a collaborative MCQ test-bank quiz app for teachers. Sprint 1 delivered
+registration, login, logout, and a D1 user store. Sprint 2 delivered full MCQ management:
+create, edit, delete, and preview questions with REST API routes and a teacher-facing UI.
+Session management remains out of scope. The technical PRDs in `ai-workspace/` are the
+source of truth (`sprint-1-user-authentication_PRD.md`, `sprint-2-mcq-management_PRD.md`).
 
 ## Stack
 
@@ -23,7 +24,7 @@ deployed. The technical PRD in `ai-workspace/sprint-1-user-authentication_PRD.md
 - **Tailwind CSS v4**, configured in CSS rather than a JS config file
 - **shadcn/ui** on Base UI, `base-nova` style, with Lucide icons
 - **TypeScript** in strict mode
-- **Cloudflare D1** for user persistence (binding `DB`)
+- **Cloudflare D1** for user and MCQ persistence (binding `DB`)
 - **Wrangler** for Cloudflare configuration, secrets, and deployment
 - **Vitest** for automated unit and route tests
 - **Zod** for request validation; **bcryptjs** for password hashing
